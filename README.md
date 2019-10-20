@@ -1,6 +1,6 @@
 # AsyncTkinter
 
-Allows you write asynchronous code with `tkinter`. ([Youtube](https://youtu.be/8XP1KgRd3jI))
+Allows you to use async/await syntax inside a Tkinter application. ([Youtube](https://youtu.be/8XP1KgRd3jI))
 
 ## Installation
 
