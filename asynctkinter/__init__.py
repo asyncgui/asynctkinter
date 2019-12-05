@@ -1,5 +1,5 @@
 __version__ = '0.0.1'
-__all__ = ('patch_unbind', 'start', 'sleep', 'event', )
+__all__ = ('patch_unbind', 'start', 'sleep', 'event', 'thread', )
 
 import types
 from inspect import getcoroutinestate, CORO_CLOSED
@@ -42,6 +42,20 @@ def event(widget, name, *, filter=None):
         step_coro(*args, **kwargs)
 
     return (yield bind)[0][0]
+
+
+async def thread(func, *, sleep_by):
+    from threading import Thread
+    return_value = None
+    is_finished = False
+    def wrapper(*args, **kwargs):
+        nonlocal return_value, is_finished
+        return_value = func(*args, **kwargs)
+        is_finished = True
+    Thread(target=wrapper).start()
+    while not is_finished:
+        await sleep(sleep_by, 3)
+    return return_value
 
 
 def _new_unbind(self, sequence, funcid=None):
