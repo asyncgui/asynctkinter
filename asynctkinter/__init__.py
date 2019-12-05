@@ -30,8 +30,7 @@ def event(widget, name, *, filter=None):
     step_coro = None
 
     def bind(step_coro_):
-        nonlocal bind_id
-        nonlocal step_coro
+        nonlocal bind_id, step_coro
         bind_id = widget.bind(name, callback, '+')
         step_coro = step_coro_
 
