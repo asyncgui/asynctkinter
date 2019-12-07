@@ -53,7 +53,7 @@ async def thread(func, *, sleep_by):
         is_finished = True
     Thread(target=wrapper).start()
     while not is_finished:
-        await sleep(sleep_by, 3)
+        await sleep(sleep_by, 3000)
     return return_value
 
 
