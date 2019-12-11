@@ -49,6 +49,22 @@ at.start(some_task(label))
 root.mainloop()
 ```
 
+```python
+async def some_task(label):
+    # wait until EITEHR the label is pressed OR 5sec passes
+    tasks = await ak.or_(
+        ak.event(label, '<Button>'),
+        ak.sleep(5),
+    )
+    print("The label was pressed" if tasks[0].done else "5sec passed")
+
+    # wait until BOTH the label is pressed AND 5sec passes"
+    tasks = await ak.and_(
+        ak.event(label, '<Button>'),
+        ak.sleep(5),
+    )
+```
+
 ## Note
 
 - Why `patch_unbind()` is needed? Take a look at [this](https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding).
