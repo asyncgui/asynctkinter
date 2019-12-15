@@ -16,7 +16,7 @@ async def some_task(label):
     label['text'] = 'start heavy task'
     event = await at.event(label, '<Button>')
     label['text'] = 'running...'
-    await at.thread(heavy_task, sleep_by=label)
+    await at.thread(heavy_task, watcher=label)
     label['text'] = 'done'
     await at.sleep(label, 2000)
     label['text'] = 'close the window'

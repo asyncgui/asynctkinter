@@ -47,7 +47,7 @@ def event(widget, name, *, filter=None):
     return (yield bind)[0][0]
 
 
-async def thread(func, *, sleep_by):
+async def thread(func, *, watcher):
     from threading import Thread
     return_value = None
     is_finished = False
@@ -57,7 +57,7 @@ async def thread(func, *, sleep_by):
         is_finished = True
     Thread(target=wrapper).start()
     while not is_finished:
-        await sleep(sleep_by, 3000)
+        await sleep(watcher, 3000)
     return return_value
 
 

@@ -35,7 +35,7 @@ async def some_task(label):
     label['text'] = 'running...'
 
     # wait for the completion of another thread
-    await at.thread(heavy_task, sleep_by=label)
+    await at.thread(heavy_task, watcher=label)
 
     label['text'] = 'done'
 
