@@ -67,4 +67,4 @@ async def some_task(label):
 
 ## Note
 
-- Why `patch_unbind()` is needed? Take a look at [this](https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding).
+- Why is `patch_unbind()` necessary? Take a look at [this](https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding).
