@@ -1,7 +1,7 @@
 __version__ = '0.0.1'
 __all__ = (
     'patch_unbind', 'start', 'sleep', 'event', 'thread',
-    'gather', 'and_', 'or_',
+    'gather', 'and_', 'or_', 'sleep_forever',
 )
 
 import types
@@ -26,6 +26,11 @@ def start(coro):
 @types.coroutine
 def sleep(widget, duration):
     yield lambda step_coro: widget.after(duration, step_coro)
+
+
+@types.coroutine
+def sleep_forever():
+    yield lambda step_coro: None
 
 
 @types.coroutine
