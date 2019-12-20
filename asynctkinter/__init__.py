@@ -55,7 +55,7 @@ async def thread(func, *, watcher):
         nonlocal return_value, is_finished
         return_value = func(*args, **kwargs)
         is_finished = True
-    Thread(target=wrapper).start()
+    Thread(target=wrapper, daemon=True).start()
     while not is_finished:
         await sleep(watcher, 3000)
     return return_value
