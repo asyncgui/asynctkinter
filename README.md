@@ -52,16 +52,16 @@ root.mainloop()
 ```python
 async def some_task(label):
     # wait until EITEHR the label is pressed OR 5sec passes
-    tasks = await ak.or_(
-        ak.event(label, '<Button>'),
-        ak.sleep(5),
+    tasks = await at.or_(
+        at.event(label, '<Button>'),
+        at.sleep(label, 5000),
     )
     print("The label was pressed" if tasks[0].done else "5sec passed")
 
     # wait until BOTH the label is pressed AND 5sec passes"
-    tasks = await ak.and_(
-        ak.event(label, '<Button>'),
-        ak.sleep(5),
+    tasks = await at.and_(
+        at.event(label, '<Button>'),
+        at.sleep(label, 5000),
     )
 ```
 
