@@ -90,9 +90,9 @@ async def task_B(e):
     print('B2')
 
 e = at.Event()
-ak.start(task_A(e))
+at.start(task_A(e))
 # A1
-ak.start(task_B(e))
+at.start(task_B(e))
 # B1
 e.set()
 # A2
