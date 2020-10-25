@@ -12,7 +12,7 @@ async def async_func(label):
         label['text'] = 'Click anywhere!'
         event = await at.event(label, '<Button>')
         label['text'] = f'You clicked at ({event.x}, {event.y})'
-        await at.sleep(label, 1500)
+        await at.sleep(1500, after=label.after)
 
 at.start(async_func(label))
 root.mainloop()

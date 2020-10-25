@@ -7,6 +7,7 @@ def heavy_task():
     for i in range(5):
         time.sleep(1)
         print('heavy task:', i)
+    return 'done'
 
 root = Tk()
 label = Label(root, text='Hello', font=('', 60))
@@ -16,9 +17,9 @@ async def some_task(label):
     label['text'] = 'start heavy task'
     event = await at.event(label, '<Button>')
     label['text'] = 'running...'
-    await at.thread(heavy_task, watcher=label)
-    label['text'] = 'done'
-    await at.sleep(label, 2000)
+    result = await at.run_in_thread(heavy_task, after=label.after)
+    label['text'] = result
+    await at.sleep(2000, after=label.after)
     label['text'] = 'close the window'
 
 

@@ -1,11 +1,12 @@
 # AsyncTkinter
 
-Allows you to use async/await syntax inside a Tkinter application. ([Youtube](https://youtu.be/8XP1KgRd3jI))
+Async library that works on top of tkinter's event loop.
+([Youtube](https://youtu.be/8XP1KgRd3jI))
 
-## Installation
+### Installation
 
 ```
-pip install git+https://github.com/gottadiveintopython/asynctkinter#egg=asynctkinter
+pip install asynctkinter
 ```
 
 ## Usage
@@ -28,19 +29,21 @@ label.pack()
 async def some_task(label):
     label['text'] = 'start heavy task'
 
-    # wait until the label is pressed
+    # wait until a label is pressed
     event = await at.event(label, '<Button>')
 
     print(event.x, event.y)
     label['text'] = 'running...'
 
-    # wait for the completion of another thread
-    await at.thread(heavy_task, watcher=label)
+    # create a new thread, run a function on it, then
+    # wait for the completion of that thread
+    result = await at.run_in_thread(heavy_task, after=label.after)
+    print('result of heavytask():', result)
 
     label['text'] = 'done'
 
     # wait for 2sec
-    await at.sleep(label, 2000)
+    await at.sleep(2000, after=label.after)
 
     label['text'] = 'close the window'
 
@@ -49,20 +52,51 @@ at.start(some_task(label))
 root.mainloop()
 ```
 
+#### wait for the completion/cancellation of multiple tasks simultaneously
+
 ```python
 async def some_task(label):
-    # wait until EITEHR the label is pressed OR 5sec passes
+    from functools import partial
+    import asynctkinter as at
+    sleep = partial(at.sleep, after=label.after)
+    # wait until EITEHR a label is pressed OR 5sec passes
     tasks = await at.or_(
         at.event(label, '<Button>'),
-        at.sleep(label, 5000),
+        sleep(5000),
     )
     print("The label was pressed" if tasks[0].done else "5sec passed")
 
-    # wait until BOTH the label is pressed AND 5sec passes"
+    # wait until BOTH a label is pressed AND 5sec passes"
     tasks = await at.and_(
         at.event(label, '<Button>'),
-        at.sleep(label, 5000),
+        sleep(5000),
     )
+```
+
+#### synchronization primitive
+
+There is a Trio's [Event](https://trio.readthedocs.io/en/stable/reference-core.html#trio.Event) equivalent.
+
+```python
+import asynctkinter as at
+
+async def task_A(e):
+    print('A1')
+    await e.wait()
+    print('A2')
+async def task_B(e):
+    print('B1')
+    await e.wait()
+    print('B2')
+
+e = at.Event()
+ak.start(task_A(e))
+# A1
+ak.start(task_B(e))
+# B1
+e.set()
+# A2
+# B2
 ```
 
 ## Note

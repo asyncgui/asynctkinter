@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "asynctkinter"
+version = "0.1.0"
+description = "async library that works on top of tkinter's event loop"
+authors = ["Nattōsai Mitō <flow4re2c@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+asyncgui = "^0.1.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

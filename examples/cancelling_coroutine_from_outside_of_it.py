@@ -9,7 +9,7 @@ label.pack()
 
 async def animate_label(label):
     from functools import partial
-    sleep = partial(at.sleep, label)
+    sleep = partial(at.sleep, after=label.after)
     await sleep(1500)
     while True:
         label['text'] = 'This animation'
