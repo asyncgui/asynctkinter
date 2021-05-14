@@ -38,14 +38,23 @@ async def run_in_thread(func, *, daemon=False, polling_interval=3000, after:Call
     from threading import Thread
 
     return_value = None
-    is_finished = False
+    exception = None
+    done = False
+
     def wrapper():
-        nonlocal return_value, is_finished
-        return_value = func()
-        is_finished = True
+        nonlocal return_value, done, exception
+        try:
+            return_value = func()
+        except Exception as e:
+            exception = e
+        finally:
+            done = True
+
     Thread(target=wrapper, daemon=daemon).start()
-    while not is_finished:
+    while not done:
         await sleep(polling_interval, after=after)
+    if exception is not None:
+        raise exception
     return return_value
 
 
