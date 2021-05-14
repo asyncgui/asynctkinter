@@ -16,18 +16,17 @@ async def animate_label(label):
         await sleep(1500)
         label['text'] = 'can be cancelled anytime'
         await sleep(2000)
-        label['text'] = 'by clicking the window'
+        label['text'] = 'by clicking the label'
         await sleep(2500)
 
 
-coro = animate_label(label)
-
-
-def on_click(event):
-    coro.close()
+async def root_func(label):
+    await at.or_(
+        animate_label(label),
+        at.event(label, '<Button>'),
+    )
     label['text'] = 'Cancelled!!'
 
 
-label.bind('<Button>', on_click)
-at.start(coro)
+at.start(root_func(label))
 root.mainloop()
