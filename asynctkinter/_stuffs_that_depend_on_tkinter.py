@@ -20,12 +20,18 @@ def event(widget, name, *, filter=None):
         step_coro = step_coro_
 
     def callback(*args, **kwargs):
+        nonlocal bind_id
         if (filter is not None) and (not filter(*args, **kwargs)):
             return
         widget.unbind(name, bind_id)
+        bind_id = None
         step_coro(*args, **kwargs)
 
-    return (yield bind)[0][0]
+    try:
+        return (yield bind)[0][0]
+    finally:
+        if bind_id is not None:
+            widget.unbind(name, bind_id)
 
 
 async def run_in_thread(func, *, daemon=False, polling_interval=3000, after:Callable):
