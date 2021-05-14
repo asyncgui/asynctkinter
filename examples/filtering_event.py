@@ -12,13 +12,15 @@ async def async_func(label):
     sleep = partial(at.sleep, after=label.after)
     while True:
         label['text'] = 'Press the left mouse button!!'
-        event = await at.event(
-            label, '<Button>', filter=lambda event: event.num == 1)
+        await at.event(label, '<Button-1>')
+        label['text'] = 'One more time'
+        await at.event(label, '<Button>', filter=lambda event: event.num == 1)
         label['text'] = 'Nice!!'
         await sleep(1500)
         label['text'] = 'Press the right mouse button!!'
-        event = await at.event(
-            label, '<Button>', filter=lambda event: event.num == 3)
+        await at.event(label, '<Button-3>')
+        label['text'] = 'One more time'
+        await at.event(label, '<Button>', filter=lambda event: event.num == 3)
         label['text'] = 'Great!!'
         await sleep(1500)
 

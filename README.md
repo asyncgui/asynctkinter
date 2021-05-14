@@ -3,11 +3,59 @@
 Async library that works on top of tkinter's event loop.
 ([Youtube](https://youtu.be/8XP1KgRd3jI))
 
-### Installation
+`asynctkinter` is an async library that saves you from ugly callback-based code,
+just like most of async libraries do.
+Let's say you want to do:
+
+1. `print('A')`
+1. wait for 1sec
+1. `print('B')`
+1. wait for a label to be pressed
+1. `print('C')`
+
+in that order.
+Your code would look like this:
+
+```python
+def what_you_want_to_do(label):
+    bind_id = None
+    print('A')
+
+    def one_sec_later(__):
+        nonlocal bind_id
+        print('B')
+        bind_id = label.bind('<Button>', on_press, '+')
+    label.after(1000, one_sec_later)
+
+    def on_press(event):
+        label.unbind('<Button>', bind_id)
+        print('C')
+```
+
+It's barely readable and not easy to understand.
+If you use `asynctkinter`, the code above will become like this:
+
+```python
+import asynctkinter as at
+
+async def what_you_want_to_do(label):
+    print('A')
+    await at.sleep(1000, after=label.after)
+    print('B')
+    await at.event(label, '<Button>')
+    print('C')
+```
+
+## Installation
 
 ```
 pip install asynctkinter
 ```
+
+## Pin the minor version
+
+If you use this module, it's recommended to pin the minor version, because if
+it changed, it usually means some breaking changes occurred.
 
 ## Usage
 
@@ -29,7 +77,7 @@ label.pack()
 async def some_task(label):
     label['text'] = 'start heavy task'
 
-    # wait until a label is pressed
+    # wait for a label to be pressed
     event = await at.event(label, '<Button>')
 
     print(event.x, event.y)
@@ -99,6 +147,19 @@ e.set()
 # B2
 ```
 
-## Note
+## Structured Concurrency
+
+Both `asynctkinter.and_()` and `asynctkinter.or_()` follow the concept of "structured concurrency".
+What does that mean?
+They promise two things:
+
+* The tasks passed into them never outlive them.
+* Exceptions occured in the tasks are propagated to the caller.
+
+Read [this post][njs_sc] if you are curious to the concept.
+
+## Misc
 
 - Why is `patch_unbind()` necessary? Take a look at [this](https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding).
+
+[njs_sc]:https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
