@@ -68,7 +68,7 @@ label = Label(root, text='Hello', font=('', 60))
 label.pack()
 
 async def some_task(label):
-    label['text'] = 'start heavy task'
+    label['text'] = 'Hello'
 
     # wait for a label to be pressed
     event = await at.event(label, '<Button>')
