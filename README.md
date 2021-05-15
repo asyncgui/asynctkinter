@@ -1,7 +1,6 @@
 # AsyncTkinter
 
-Async library that works on top of tkinter's event loop.
-([Youtube](https://youtu.be/8XP1KgRd3jI))
+[Youtube](https://youtu.be/8XP1KgRd3jI)
 
 `asynctkinter` is an async library that saves you from ugly callback-based code,
 just like most of async libraries do.
@@ -64,12 +63,6 @@ from tkinter import Tk, Label
 import asynctkinter as at
 at.patch_unbind()
 
-def heavy_task():
-    import time
-    for i in range(5):
-        time.sleep(1)
-        print('heavy task:', i)
-
 root = Tk()
 label = Label(root, text='Hello', font=('', 60))
 label.pack()
@@ -79,22 +72,10 @@ async def some_task(label):
 
     # wait for a label to be pressed
     event = await at.event(label, '<Button>')
-
-    print(event.x, event.y)
-    label['text'] = 'running...'
-
-    # create a new thread, run a function on it, then
-    # wait for the completion of that thread
-    result = await at.run_in_thread(heavy_task, after=label.after)
-    print('result of heavytask():', result)
-
-    label['text'] = 'done'
+    print(f"pos: {event.x}, {event.y}")
 
     # wait for 2sec
     await at.sleep(2000, after=label.after)
-
-    label['text'] = 'close the window'
-
 
 at.start(some_task(label))
 root.mainloop()
@@ -145,6 +126,48 @@ at.start(task_B(e))
 e.set()
 # A2
 # B2
+```
+
+### threading
+
+`asynctkinter` doesn't have any I/O primitives like Trio and asyncio do,
+thus threads are the only way to perform them without blocking the main-thread:
+
+```python
+from concurrent.futures import ThreadPoolExecuter
+import asynctkinter as at
+
+executer = ThreadPoolExecuter()
+
+async def some_task(widget):
+    # create a new thread, run a function inside it, then
+    # wait for the completion of that thread
+    r = await at.run_in_thread(
+        thread_blocking_operation, after=widget.after)
+    print("return value:", r)
+
+    # run a function inside a ThreadPoolExecuter, and wait for the completion
+    r = await at.run_in_executer(
+        thread_blocking_operation, executer, after=widget.after)
+    print("return value:", r)
+```
+
+Exceptions(not BaseExceptions) are propagated to the caller,
+so you can handle them like you do in synchronous code:
+
+```python
+import requests
+from requests.exceptions import Timeout
+import asynctkinter as at
+
+async def some_task(widget):
+    try:
+        r = await at.run_in_thread(
+            lambda: requests.get('htt...', timeout=10), after=widget.after)
+    except Timeout:
+        print("TIMEOUT!")
+    else:
+        print('GOT A RESPONSE')
 ```
 
 ## Structured Concurrency

@@ -1,4 +1,6 @@
-__all__ = ('patch_unbind', 'sleep', 'event', 'run_in_thread', )
+__all__ = (
+    'patch_unbind', 'sleep', 'event', 'run_in_thread', 'run_in_executer',
+)
 from functools import lru_cache
 from typing import Callable
 import types
@@ -53,6 +55,33 @@ async def run_in_thread(func, *, daemon=False, polling_interval=3000, after:Call
     Thread(target=wrapper, daemon=daemon).start()
     while not done:
         await sleep(polling_interval, after=after)
+    if exception is not None:
+        raise exception
+    return return_value
+
+
+async def run_in_executer(func, executer, *, polling_interval=3000, after:Callable):
+    return_value = None
+    exception = None
+    done = False
+
+    def wrapper():
+        nonlocal return_value, done, exception
+        try:
+            return_value = func()
+        except Exception as e:
+            exception = e
+        finally:
+            done = True
+
+    future = executer.submit(wrapper)
+    try:
+        while not done:
+            await sleep(polling_interval, after=after)
+    except GeneratorExit:
+        future.cancel()
+        raise
+    assert future.done()
     if exception is not None:
         raise exception
     return return_value
