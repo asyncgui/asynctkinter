@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "asynctkinter"
-version = "0.1.2"
+version = "0.2.0"
 description = "async library that works on top of tkinter's event loop"
 authors = ["Nattōsai Mitō <flow4re2c@gmail.com>"]
 license = "MIT"
