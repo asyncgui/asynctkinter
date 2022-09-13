@@ -9,7 +9,7 @@ label.pack()
 
 async def async_func(label):
     from functools import partial
-    sleep = partial(at.sleep, after=label.after)
+    sleep = partial(at.sleep, label.after)
     while True:
         label['text'] = 'Press the left mouse button!!'
         await at.event(label, '<Button-1>')
