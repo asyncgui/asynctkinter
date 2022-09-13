@@ -39,7 +39,7 @@ import asynctkinter as at
 
 async def what_you_want_to_do(label):
     print('A')
-    await at.sleep(1000, after=label.after)
+    await at.sleep(label.after, 1000)
     print('B')
     await at.event(label, '<Button>')
     print('C')
@@ -68,7 +68,7 @@ label = Label(root, text='Hello', font=('', 60))
 label.pack()
 
 async def async_func(label):
-    sleep = partial(at.sleep, after=label.after)
+    sleep = partial(at.sleep, label.after)
 
     # wait for 2sec
     await sleep(2000)

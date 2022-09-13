@@ -19,7 +19,7 @@ async def some_task(label):
     label['text'] = 'running...'
     result = await at.run_in_thread(heavy_task, after=label.after)
     label['text'] = result
-    await at.sleep(2000, after=label.after)
+    await at.sleep(label.after, 2000)
     label['text'] = 'close the window'
 
 

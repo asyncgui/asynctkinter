@@ -7,8 +7,8 @@ import types
 
 
 @types.coroutine
-def sleep(duration, *, after:Callable):
-    yield lambda step_coro: after(duration, step_coro)
+def sleep(after: Callable, duration):
+    yield lambda step_coro, after=after, duration=duration: after(duration, step_coro)
 
 
 @types.coroutine
@@ -54,7 +54,7 @@ async def run_in_thread(func, *, daemon=False, polling_interval=3000, after:Call
 
     Thread(target=wrapper, daemon=daemon).start()
     while not done:
-        await sleep(polling_interval, after=after)
+        await sleep(after, polling_interval)
     if exception is not None:
         raise exception
     return return_value
@@ -77,7 +77,7 @@ async def run_in_executer(func, executer, *, polling_interval=3000, after:Callab
     future = executer.submit(wrapper)
     try:
         while not done:
-            await sleep(polling_interval, after=after)
+            await sleep(after, polling_interval)
     except GeneratorExit:
         future.cancel()
         raise
