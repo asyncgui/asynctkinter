@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "asynctkinter"
-version = "0.2.0"
-description = "async library that works on top of tkinter's event loop"
+version = "0.3.0.dev0"
+description = "async library for tkinter"
 authors = ["Nattōsai Mitō <flow4re2c@gmail.com>"]
 license = "MIT"
 readme = 'README.md'
@@ -16,6 +16,7 @@ classifiers=[
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
     'Topic :: Software Development :: Libraries',
     'Operating System :: OS Independent',
 ]
