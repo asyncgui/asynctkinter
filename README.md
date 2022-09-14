@@ -47,8 +47,8 @@ async def what_you_want_to_do(label):
 
 ## Installation
 
-If you use this module, it's recommended to pin the minor version, because if
-it changed, it usually means some *important* breaking changes occurred.
+It's recommended to pin the minor version, because if
+it changed, it means some *important* breaking changes occurred.
 
 ```text
 poetry add asynctkinter@~0.2
@@ -176,21 +176,22 @@ task = asynctkinter.start(async_func())
 task.cancel()
 ```
 
-When `.cancel()` is called, `GeneratorExit` will occur inside the awaitable,
+When `.cancel()` is called, `GeneratorExit` will occur inside the task,
 which means you can prepare for cancellations as follows:
 
 ```python
 async def async_func():
+    setup()
     try:
         ...
     except GeneratorExit:
         print('cancelled')
         raise  # You must re-raise !!
     finally:
-        # do resource clean-up here
+        teardown()
 ```
 
-You are not allowed to `await` inside except-GeneratorExit-clause and finally-clause if you want the awaitable to be cancellable
+You are not allowed to `await` inside `except-GeneratorExit-clause` and `finally-clause` if you want the task to be cancellable
 because cancellations always must be done immediately.
 
 ```python
@@ -206,7 +207,7 @@ async def async_func():
         await something  # <-- NOT ALLOWED
 ```
 
-You are allowed to `await` inside finally-clause if the awaitable will never get cancelled.
+You are allowed to `await` inside finally-clause if the task will never get cancelled.
 
 ```python
 async def async_func():  # Assuming this never gets cancelled
