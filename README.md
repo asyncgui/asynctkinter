@@ -29,6 +29,8 @@ def what_you_want_to_do(label):
     def on_press(event):
         label.unbind('<Button>', bind_id)
         print('C')
+
+what_you_want_to_do(...)
 ```
 
 It's barely readable and not easy to understand.
@@ -43,6 +45,8 @@ async def what_you_want_to_do(label):
     print('B')
     await at.event(label, '<Button>')
     print('C')
+
+at.start(what_you_want_to_do(...))
 ```
 
 ## Installation
