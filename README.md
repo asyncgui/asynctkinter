@@ -34,7 +34,7 @@ what_you_want_to_do(...)
 ```
 
 It's barely readable and not easy to understand.
-If you use `asynctkinter`, the code above will become:
+If you use `asynctkinter`, the above code will be:
 
 ```python
 import asynctkinter as at
@@ -55,8 +55,8 @@ It's recommended to pin the minor version, because if
 it changed, it means some *important* breaking changes occurred.
 
 ```text
-poetry add asynctkinter@~0.2
-pip install "asynctkinter>=0.2,<0.3"
+poetry add asynctkinter@~0.3
+pip install "asynctkinter>=0.3,<0.4"
 ```
 
 ## Usage
@@ -65,13 +65,13 @@ pip install "asynctkinter>=0.2,<0.3"
 from functools import partial
 from tkinter import Tk, Label
 import asynctkinter as at
-at.patch_unbind()
+at.install()
 
 root = Tk()
 label = Label(root, text='Hello', font=('', 60))
 label.pack()
 
-async def async_func(label):
+async def async_fn(label):
     sleep = partial(at.sleep, label.after)
 
     # wait for 2sec
@@ -83,52 +83,26 @@ async def async_func(label):
 
     # wait until EITHER a label is pressed OR 5sec passes.
     # i.e. wait at most 5 seconds for a label to be pressed.
-    tasks = await at.or_(
+    tasks = await at.wait_any(
         at.event(label, '<Button>'),
         sleep(5000),
     )
-    print("The label was pressed" if tasks[0].done else "5sec passed")
+    if tasks[0].finished:
+        event = tasks[0].result
+        print(f"The label was pressed. (pos: {event.x}, {event.y})")
+    else:
+        print("5sec passed")
 
-    # wait until BOTH a label is pressed AND 5sec passes.
-    tasks = await at.and_(
+    # wait until a label is pressed AND 5sec passes.
+    tasks = await at.wait_all(
         at.event(label, '<Button>'),
         sleep(5000),
     )
 
 
-at.start(async_func(label))
+at.start(async_fn(label))
 root.mainloop()
 ```
-
-### synchronization primitive
-
-There is a [trio.Event](https://trio.readthedocs.io/en/stable/reference-core.html#trio.Event) equivalent.
-
-```python
-import asynctkinter as at
-
-async def task_A(e):
-    print('A1')
-    await e.wait()
-    print('A2')
-async def task_B(e):
-    print('B1')
-    await e.wait()
-    print('B2')
-
-e = at.Event()
-at.start(task_A(e))
-# A1
-at.start(task_B(e))
-# B1
-e.set()
-# A2
-# B2
-```
-
-Unlike Trio's and asyncio's, when you call ``Event.set()``,
-the tasks waiting for it to happen will *immediately* be resumed.
-As a result, ``e.set()`` will return *after* ``A2`` and ``B2`` are printed.
 
 ### threading
 
@@ -141,15 +115,15 @@ import asynctkinter as at
 
 executer = ThreadPoolExecuter()
 
-async def some_task(widget):
+async def async_fn(widget):
     # create a new thread, run a function inside it, then
     # wait for the completion of that thread
     r = await at.run_in_thread(thread_blocking_operation, after=widget.after)
     print("return value:", r)
 
-    # run a function inside a ThreadPoolExecuter, and wait for the completion.
+    # run a function inside a ThreadPoolExecuter, and wait for its completion.
     # (ProcessPoolExecuter is not supported)
-    r = await at.run_in_executer(thread_blocking_operation, executer, after=widget.after)
+    r = await at.run_in_executer(executer, thread_blocking_operation, after=widget.after)
     print("return value:", r)
 ```
 
@@ -160,7 +134,7 @@ so you can catch them like you do in synchronous code:
 import requests
 import asynctkinter as at
 
-async def some_task(widget):
+async def async_fn(widget):
     try:
         r = await at.run_in_thread(lambda: requests.get('htt...', timeout=10), after=widget.after)
     except requests.Timeout:
@@ -169,98 +143,7 @@ async def some_task(widget):
         print('RECEIVED:', r)
 ```
 
-### dealing with cancellations
 
-``asynctkinter.start()`` returns a ``Task``,
-which can be used to cancel the execution.
+## Note
 
-```python
-task = asynctkinter.start(async_func())
-...
-task.cancel()
-```
-
-When `.cancel()` is called, `GeneratorExit` will occur inside the task,
-which means you can prepare for cancellations as follows:
-
-```python
-async def async_func():
-    setup()
-    try:
-        ...
-    except GeneratorExit:
-        print('cancelled')
-        raise  # You must re-raise !!
-    finally:
-        teardown()
-```
-
-You are not allowed to `await` inside `except-GeneratorExit-clause` and `finally-clause` if you want the task to be cancellable
-because cancellations always must be done immediately.
-
-```python
-async def async_func():
-    try:
-        await something  # <-- ALLOWED
-    except Exception:
-        await something  # <-- ALLOWED
-    except GeneratorExit:
-        await something  # <-- NOT ALLOWED
-        raise
-    finally:
-        await something  # <-- NOT ALLOWED
-```
-
-You are allowed to `await` inside finally-clause if the task will never get cancelled.
-
-```python
-async def async_func():  # Assuming this never gets cancelled
-    try:
-        await something  # <-- ALLOWED
-    except Exception:
-        await something  # <-- ALLOWED
-    finally:
-        await something  # <-- ALLOWED
-```
-
-As long as you follow the rules above, you can cancel tasks as you wish.
-But note that if there are lots of explicit calls to `Task.cancel()` in your code,
-**it's a sign of your code being not well-structured**.
-You can usually avoid it by using `asynctkinter.and_()` and `asynctkinter.or_()`.  
-
-## Structured Concurrency
-
-(This section is incomplete, and will be filled some day.)
-
-`asynctkinter.and_()` and `asynctkinter.or_()` follow the concept of [structured concurrency][njs_sc].
-
-```python
-import asynctkinter as at
-
-async def root():
-    await at.or_(child1(), child2())
-
-async def child1():
-    ...
-
-async def child2():
-    await at.and_(ground_child1(), ground_child2())
-
-async def ground_child1():
-    ...
-
-async def ground_child2():
-    ...
-```
-
-```mermaid
-flowchart TB
-root --> C1(child 1) & C2(child 2)
-C2 --> GC1(ground child 1) & GC2(ground child 2)
-```
-
-## Misc
-
-- Why is `patch_unbind()` necessary? Take a look at [this](https://stackoverflow.com/questions/6433369/deleting-and-changing-a-tkinter-event-binding).
-
-[njs_sc]:https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+- You may want to read the [asyncgui's documentation](https://gottadiveintopython.github.io/asyncgui/) as it is the foundation of this library.

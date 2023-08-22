@@ -1,15 +1,20 @@
-from tkinter import Tk, Label
+from functools import partial
+import tkinter as tk
 import asynctkinter as at
 
-at.patch_unbind()
 
-root = Tk()
-label = Label(root, text='Hello', font=('', 80))
-label.pack()
+def main():
+    at.install()
+    root = tk.Tk()
+    at.start(async_main(root))
+    root.mainloop()
 
-async def animate_label(label):
-    from functools import partial
-    sleep = partial(at.sleep, label.after)
+
+async def async_main(root):
+    sleep = partial(at.sleep, root.after)
+
+    label = tk.Label(root, text='Hello', font=('', 80))
+    label.pack()
     await sleep(2000)
     while True:
         label['text'] = 'Do'
@@ -24,5 +29,5 @@ async def animate_label(label):
         await sleep(2000)
 
 
-at.start(animate_label(label))
-root.mainloop()
+if __name__ == "__main__":
+    main()

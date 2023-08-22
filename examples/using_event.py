@@ -1,18 +1,25 @@
-from tkinter import Tk, Label
+from functools import partial
+import tkinter as tk
 import asynctkinter as at
 
-at.patch_unbind()
 
-root = Tk()
-label = Label(root, font=('', 40))
-label.pack()
+def main():
+    at.install()
+    root = tk.Tk()
+    at.start(async_main(root))
+    root.mainloop()
 
-async def async_func(label):
+
+async def async_main(root):
+    sleep = partial(at.sleep, root.after)
+    label = tk.Label(root, font=('', 40))
+    label.pack()
     while True:
         label['text'] = 'Click anywhere!'
         event = await at.event(label, '<Button>')
-        label['text'] = f'You clicked at ({event.x}, {event.y})'
-        await at.sleep(label.after, 1500)
+        label['text'] = f'You clicked at pos({event.x}, {event.y})'
+        await sleep(1500)
 
-at.start(async_func(label))
-root.mainloop()
+
+if __name__ == "__main__":
+    main()
