@@ -63,16 +63,21 @@ pip install "asynctkinter>=0.3,<0.4"
 
 ```python
 from functools import partial
-from tkinter import Tk, Label
+import tkinter as tk
 import asynctkinter as at
-at.install()
 
-root = Tk()
-label = Label(root, text='Hello', font=('', 60))
-label.pack()
 
-async def async_fn(label):
-    sleep = partial(at.sleep, label.after)
+def main():
+    at.install()
+    root = tk.Tk()
+    at.start(async_main(root))
+    root.mainloop()
+
+
+async def async_main(root):
+    sleep = partial(at.sleep, root.after)
+    label = tk.Label(root, text='Hello', font=('', 80))
+    label.pack()
 
     # wait for 2sec
     await sleep(2000)
@@ -100,8 +105,8 @@ async def async_fn(label):
     )
 
 
-at.start(async_fn(label))
-root.mainloop()
+if __name__ == "__main__":
+    main()
 ```
 
 ### threading
@@ -147,3 +152,4 @@ async def async_fn(widget):
 ## Note
 
 - You may want to read the [asyncgui's documentation](https://gottadiveintopython.github.io/asyncgui/) as it is the foundation of this library.
+- I'm not even a tkinter user so there may be plenty of weird code in the repository.
