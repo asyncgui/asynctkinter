@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "asynctkinter"
-version = "0.3.0.dev0"
+version = "0.3.0"
 description = "async library for tkinter"
 authors = ["Nattōsai Mitō <flow4re2c@gmail.com>"]
 license = "MIT"
@@ -13,17 +13,20 @@ classifiers=[
     'License :: OSI Approved :: MIT License',
     'Intended Audience :: Developers',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
     'Topic :: Software Development :: Libraries',
     'Operating System :: OS Independent',
 ]
+packages = [
+    { include = "asynctkinter", from = "src" },
+]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-asyncgui = "~0.5"
+python = "^3.8.1"
+asyncgui = "~0.6"
 
 [tool.poetry.group.dev.dependencies]
 

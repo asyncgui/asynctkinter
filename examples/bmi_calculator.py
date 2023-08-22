@@ -1,10 +1,15 @@
 '''
-I'm not even a tkinter user so the code probably is very weird.
+I'm not even a tkinter user so the code probably is impractical.
 '''
-
-
 import tkinter as tk
 import asynctkinter as at
+
+
+def main():
+    at.install()
+    root = tk.Tk()
+    at.start(async_main(root))
+    root.mainloop()
 
 
 async def async_main(root: tk.Tk):
@@ -74,7 +79,4 @@ async def async_main(root: tk.Tk):
 
 
 if __name__ == '__main__':
-    at.patch_unbind()
-    root = tk.Tk()
-    main_task = at.start(async_main(root))
-    root.mainloop()
+    main()
