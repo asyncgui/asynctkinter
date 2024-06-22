@@ -3,37 +3,27 @@ __all__ = (
 )
 from functools import lru_cache
 import typing as T
-import types
 from threading import Thread
 
 import tkinter
-from asyncgui import Cancelled, IBox
+from asyncgui import Cancelled, AsyncEvent
 
 
-@types.coroutine
 def sleep(after: T.Callable, duration) -> T.Awaitable:
-    bind_id = None
-
-    def _sleep(task):
-        nonlocal bind_id
-        bind_id = after(duration, task._step)
-
-    try:
-        yield _sleep
-    except Cancelled:
-        after.__self__.after_cancel(bind_id)
-        raise
+    ae = AsyncEvent()
+    after(duration, ae.fire)
+    return ae.wait()
 
 
 async def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
-    box = IBox()
+    ae = AsyncEvent()
     bind_id = widget.bind(
         sequence,
-        lambda e, box=box, filter=filter: box.put(e) if (filter is None or filter(e)) else None,
+        lambda e, ae=ae, filter=filter: ae.fire(e) if (filter is None or filter(e)) else None,
         '+',
     )
     try:
-        return (await box.get())[0][0]
+        return (await ae.wait())[0][0]
     finally:
         widget.unbind(sequence, bind_id)
 

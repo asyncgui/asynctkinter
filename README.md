@@ -2,7 +2,7 @@
 
 [Youtube](https://youtu.be/8XP1KgRd3jI)
 
-`asynctkinter` is an async library that saves you from ugly callback-based code,
+`asynctkinter` is an async library that saves you from ugly callback-style code,
 like most of async libraries do.
 Let's say you want to do:
 
@@ -33,8 +33,8 @@ def what_you_want_to_do(label):
 what_you_want_to_do(...)
 ```
 
-It's barely readable and not easy to understand.
-If you use `asynctkinter`, the above code will be:
+It's not easy to understand.
+If you use `asynctkinter`, the code above will become:
 
 ```python
 import asynctkinter as at
@@ -51,8 +51,7 @@ at.start(what_you_want_to_do(...))
 
 ## Installation
 
-It's recommended to pin the minor version, because if
-it changed, it means some *important* breaking changes occurred.
+Pin the minor version.
 
 ```text
 poetry add asynctkinter@~0.3
@@ -111,8 +110,8 @@ if __name__ == "__main__":
 
 ### threading
 
-`asynctkinter` doesn't have any I/O primitives like Trio and asyncio do,
-thus threads are the only way to perform them without blocking the main-thread:
+`asynctkinter` doesn't have any I/O primitives unlike Trio and asyncio do,
+thus threads may be the best way to perform them without blocking the main thread:
 
 ```python
 from concurrent.futures import ThreadPoolExecuter
