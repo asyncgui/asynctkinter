@@ -1,36 +1,29 @@
-from functools import partial
 import tkinter as tk
 import asynctkinter as at
 
 
-def main():
-    at.install()
-    root = tk.Tk()
-    at.start(async_main(root))
-    root.mainloop()
-
-
-async def async_main(root):
-    sleep = partial(at.sleep, root.after)
+async def main(*, clock: at.Clock, root: tk.Tk):
+    root.title("Filtering Event")
+    root.geometry('900x400')
     label = tk.Label(root, font=('', 40))
-    label.pack()
+    label.pack(expand=True, fill='both')
     while True:
         label['text'] = 'Press the left mouse button!!'
         await at.event(label, '<Button-1>')
         label['text'] = 'One more time'
-        await at.event(label, '<Button>', filter=lambda event: event.num == 1)
+        await at.event(label, '<Button>', filter=lambda e: e.num == 1)
         label['text'] = 'Nice!!'
 
-        await sleep(1500)
+        await clock.sleep(1.5)
 
         label['text'] = 'Press the right mouse button!!'
         await at.event(label, '<Button-3>')
         label['text'] = 'One more time'
-        await at.event(label, '<Button>', filter=lambda event: event.num == 3)
+        await at.event(label, '<Button>', filter=lambda e: e.num == 3)
         label['text'] = 'Great!!'
 
-        await sleep(1500)
+        await clock.sleep(1.5)
 
 
 if __name__ == "__main__":
-    main()
+    at.run(main)

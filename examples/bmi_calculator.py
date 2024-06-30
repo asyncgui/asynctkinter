@@ -1,82 +1,105 @@
-'''
-I'm not even a tkinter user so the code probably is impractical.
-'''
+from functools import cached_property
+
 import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+
 import asynctkinter as at
 
 
-def main():
-    at.install()
-    root = tk.Tk()
-    at.start(async_main(root))
-    root.mainloop()
+class App:
+    async def main(self, *, clock, root):
+        root.title('BMI Calculator')
+        root.geometry('800x400')
+        self.init_style()
+        while True:
+            await self.run_bmi_calculator(clock, root)
 
+    async def run_bmi_calculator(self, clock: at.Clock, root: tk.Tk):
+        scene = self.title_scene
+        scene.pack(in_=root, expand=True, fill='both')
+        await at.event(scene.children['start_button'], '<Button>')
+        scene.pack_forget()
 
-async def async_main(root: tk.Tk):
-    from tkinter.font import Font
+        scene = self.input_scene
+        scene.pack(in_=root, expand=True, fill='both')
+        weight = await scene.ask_input('Input your weight in kilograms')
+        height = await scene.ask_input('Input your height in meters')
+        scene.pack_forget()
 
-    font = Font(size=50)
-    frame = tk.Frame(root)
-    frame.pack()
+        bmi = weight / (height * height)
+        if bmi < 18.5:
+            result = 'too skinny'
+        elif bmi < 25.0:
+            result = 'healthy'
+        else:
+            result = 'too fat'
 
-    # title
-    label = tk.Label(frame, text='BMI Calculator', font=font)
-    label.pack(padx=10, pady=10)
-    await at.sleep(label.after, 2000)
+        scene = self.result_scene
+        scene.pack(in_=root, expand=True, fill='both')
+        scene.children['top_label']['text'] = f'Your BMI is {bmi:.2f}\nYou are'
+        scene.children['bottom_label']['text'] = result
+        await at.wait_any(clock.sleep(3), at.event(root, '<Button>'))
+        scene.children['top_label']['text'] = ''
+        scene.children['bottom_label']['text'] = 'bye'
+        await at.wait_any(clock.sleep(3), at.event(root, '<Button>'))
+        scene.pack_forget()
 
-    # ask weight
-    label['text'] = 'Input your weight'
-    # label.pack(padx=10, pady=10)
-    child_frame = tk.Frame()
-    child_frame.pack()
-    entry = tk.Entry(child_frame, bg='white', font=font)
-    entry.pack(side='left', padx=10, pady=10)
-    label2 = tk.Label(child_frame, text='kg', font=font)
-    label2.pack(padx=10, pady=10)
-    ok_button = tk.Button(frame, text='ok', font=font)
-    ok_button.pack()
-    weight = None
-    while weight is None:
-        await at.event(ok_button, '<Button>')
-        text = entry.get()
-        if not text:
-            continue
-        try:
-            weight = float(text)
-        except ValueError:
-            pass
-    print(f'weight: {weight}kg')
+    def init_style(self):
+        style = ttk.Style()
+        style.configure('TButton', font=(None, 30))
+        style.configure('TLabel', font=(None, 30))
+        style.configure('TEntry', font=(None, 30))
+        style.configure('H1.TLabel', font=(None, 50, 'bold'))
 
-    # ask height
-    label['text'] = 'Input your height'
-    entry.delete(0, tk.END)
-    label2['text'] = 'm'
-    height = None
-    while height is None:
-        await at.event(ok_button, '<Button>')
-        text = entry.get()
-        if not text:
-            continue
-        try:
-            height = float(text)
-        except ValueError:
-            pass
-    print(f'height: {height}m')
+    @cached_property
+    def title_scene(self) -> ttk.Frame:
+        scene = ttk.Frame()
+        label = ttk.Label(scene, text='BMI Calculator', style='H1.TLabel')
+        label.pack(expand=True)
+        button = ttk.Button(scene, text='Start', name='start_button')
+        button.pack(expand=True)
+        return scene
 
-    # show result
-    bmi = weight / (height * height)
-    print(f'BMI指数: {bmi}')
-    if bmi < 18.5:
-        bmi_class = 'too skinny'
-    elif bmi < 25.0:
-        bmi_class = 'healthy'
-    else:
-        bmi_class = 'too fat'
-    label['text'] = f'You are {bmi_class}.'
-    child_frame.destroy()
-    ok_button.destroy()
-    await at.sleep(label.after, 2000)
+    @cached_property
+    def input_scene(self) -> ttk.Frame:
+        scene = ttk.Frame()
+        label = ttk.Label(scene)
+        label.pack(expand=True)
+        entry = ttk.Entry(scene)
+        # FIXME: 'TEntry' style doesn't seem to work so set the font here.
+        entry.configure(font=(None, 30))
+        entry.pack(expand=True, fill='x', padx=20, pady=40)
+
+        async def ask_input(msg):
+            label['text'] = msg
+            entry.delete(0, tk.END)
+            entry.focus()
+            while True:
+                await at.event(entry, '<Return>')
+                text = entry.get()
+                try:
+                    value = float(text)
+                    if value <= 0:
+                        raise ValueError
+                except ValueError:
+                    messagebox.showerror('Error', 'The value must be a positive number.')
+                    continue
+                break
+            return value
+
+        scene.ask_input = ask_input
+        return scene
+
+    @cached_property
+    def result_scene(self) -> ttk.Frame:
+        scene = ttk.Frame()
+        label = ttk.Label(scene, name='top_label', justify='center')
+        label.pack(pady=20)
+        label = ttk.Label(scene, name='bottom_label', style='H1.TLabel')
+        label.pack(expand=True)
+        return scene
 
 
 if __name__ == '__main__':
-    main()
+    at.run(App().main)
