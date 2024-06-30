@@ -1,18 +1,11 @@
 __all__ = (
-    'install', 'sleep', 'event', 'run_in_thread', 'run_in_executer',
+    'event', 'run', 'install',
 )
 from functools import lru_cache
 import typing as T
-from threading import Thread
 
 import tkinter
-from asyncgui import Cancelled, AsyncEvent
-
-
-def sleep(after: T.Callable, duration) -> T.Awaitable:
-    ae = AsyncEvent()
-    after(duration, ae.fire)
-    return ae.wait()
+from asyncgui import AsyncEvent
 
 
 async def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
@@ -26,54 +19,6 @@ async def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
         return (await ae.wait())[0][0]
     finally:
         widget.unbind(sequence, bind_id)
-
-
-async def run_in_thread(func, *, daemon=None, polling_interval=3000, after: T.Callable) -> T.Awaitable:
-    return_value = None
-    exception = None
-    done = False
-
-    def wrapper():
-        nonlocal return_value, done, exception
-        try:
-            return_value = func()
-        except Exception as e:
-            exception = e
-        finally:
-            done = True
-
-    Thread(target=wrapper, daemon=daemon).start()
-    while not done:
-        await sleep(after, polling_interval)
-    if exception is not None:
-        raise exception
-    return return_value
-
-
-async def run_in_executer(executer, func, *, polling_interval=3000, after: T.Callable) -> T.Awaitable:
-    return_value = None
-    exception = None
-    done = False
-
-    def wrapper():
-        nonlocal return_value, done, exception
-        try:
-            return_value = func()
-        except Exception as e:
-            exception = e
-        finally:
-            done = True
-
-    future = executer.submit(wrapper)
-    try:
-        while not done:
-            await sleep(after, polling_interval)
-    except Cancelled:
-        future.cancel()
-        raise
-    if exception is not None:
-        raise exception
-    return return_value
 
 
 @lru_cache(maxsize=1)
@@ -97,3 +42,40 @@ def install():
             self.deletecommand(funcid)
 
         tkinter.Misc.unbind = _new_unbind
+
+
+def run(async_fn, *, fps=20, root=None):
+    from time import sleep, perf_counter as get_time
+    from tkinter import TclError
+    import asyncgui
+    from asyncgui_ext.clock import Clock
+
+    install()
+    max_ = max
+    root = tkinter.Tk() if root is None else root
+    clock = Clock()
+
+    root_task = asyncgui.start(async_fn(clock=clock, root=root))
+    root.protocol("WM_DELETE_WINDOW", lambda: (root_task.cancel(), root.destroy()))
+
+    clock_tick = clock.tick
+    root_update = root.update
+    update_interval = 1.0 / fps
+    min_sleep_time = 1.0 / 60.0
+
+    last_time = get_time()
+    while True:
+        try:
+            root_update()
+        except TclError:
+            break
+
+        cur_time = get_time()
+        delta_time = cur_time - last_time
+        last_time = cur_time
+        sleep_time = max_(min_sleep_time, update_interval - delta_time)
+        clock_tick(delta_time)
+        sleep(sleep_time)
+        # print(f"{last_time = }, {cur_time = }, {delta_time = }, {sleep_time = }")
+
+    root_task.cancel()

@@ -26,8 +26,10 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.10.0"
 asyncgui = "~0.6"
+asyncgui-ext-clock = "~0.3"
 
 [tool.poetry.group.dev.dependencies]
+requests = "^2.32.3"
 
 [build-system]
 requires = ["poetry-core"]

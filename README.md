@@ -39,9 +39,9 @@ If you use `asynctkinter`, the code above will become:
 ```python
 import asynctkinter as at
 
-async def what_you_want_to_do(label):
+async def what_you_want_to_do(clock, label):
     print('A')
-    await at.sleep(label.after, 1000)
+    await clock.sleep(1)
     print('B')
     await at.event(label, '<Button>')
     print('C')
@@ -61,56 +61,64 @@ pip install "asynctkinter>=0.3,<0.4"
 ## Usage
 
 ```python
-from functools import partial
 import tkinter as tk
 import asynctkinter as at
 
 
-def main():
-    at.install()
-    root = tk.Tk()
-    at.start(async_main(root))
-    root.mainloop()
-
-
-async def async_main(root):
-    sleep = partial(at.sleep, root.after)
+async def main(*, clock: at.Clock, root: tk.Tk):
     label = tk.Label(root, text='Hello', font=('', 80))
     label.pack()
 
-    # wait for 2sec
-    await sleep(2000)
+    # waits for 2 seconds to elapse
+    await clock.sleep(2)
 
-    # wait for a label to be pressed
+    # waits for a label to be pressed
     event = await at.event(label, '<Button>')
     print(f"pos: {event.x}, {event.y}")
 
-    # wait until EITHER a label is pressed OR 5sec passes.
-    # i.e. wait at most 5 seconds for a label to be pressed.
+    # waits for either 5 seconds to elapse or a label to be pressed.
+    # i.e. waits at most 5 seconds for a label to be pressed
     tasks = await at.wait_any(
+        clock.sleep(5),
         at.event(label, '<Button>'),
-        sleep(5000),
     )
     if tasks[0].finished:
-        event = tasks[0].result
-        print(f"The label was pressed. (pos: {event.x}, {event.y})")
+        print("Timeout")
     else:
-        print("5sec passed")
+        event = tasks[1].result
+        print(f"The label got pressed. (pos: {event.x}, {event.y})")
 
-    # wait until a label is pressed AND 5sec passes.
+    # same as the above
+    async with clock.move_on_after(5) as timeout_tracker:
+        event = await at.event(label, '<Button>')
+        print(f"The label got pressed. (pos: {event.x}, {event.y})")
+    if timeout_tracker.finished:
+        print("Timeout")
+
+    # waits for both 5 seconds to elapse and a label to be pressed.
     tasks = await at.wait_all(
+        clock.sleep(5),
         at.event(label, '<Button>'),
-        sleep(5000),
     )
+
+    # nests as you want.
+    tasks = await ak.wait_all(
+        at.event(label, '<Button>'),
+        at.wait_any(
+            clock.sleep(5),
+            ...,
+        ),
+    )
+    child_tasks = tasks[1].result
 
 
 if __name__ == "__main__":
-    main()
+    at.run(main)
 ```
 
 ### threading
 
-`asynctkinter` doesn't have any I/O primitives unlike Trio and asyncio do,
+Unlike `Trio` and `asyncio`, `asynctkinter` doesn't provide any I/O functionalities,
 thus threads may be the best way to perform them without blocking the main thread:
 
 ```python
@@ -119,15 +127,15 @@ import asynctkinter as at
 
 executer = ThreadPoolExecuter()
 
-async def async_fn(widget):
+async def async_fn(clock: at.Clock):
     # create a new thread, run a function inside it, then
     # wait for the completion of that thread
-    r = await at.run_in_thread(thread_blocking_operation, after=widget.after)
+    r = await clock.run_in_thread(thread_blocking_operation, polling_interval=1.0)
     print("return value:", r)
 
     # run a function inside a ThreadPoolExecuter, and wait for its completion.
     # (ProcessPoolExecuter is not supported)
-    r = await at.run_in_executer(executer, thread_blocking_operation, after=widget.after)
+    r = await clock.run_in_executer(executer, thread_blocking_operation, polling_interval=0.1)
     print("return value:", r)
 ```
 
@@ -138,9 +146,9 @@ so you can catch them like you do in synchronous code:
 import requests
 import asynctkinter as at
 
-async def async_fn(widget):
+async def async_fn(clock: at.Clock):
     try:
-        r = await at.run_in_thread(lambda: requests.get('htt...', timeout=10), after=widget.after)
+        r = await clock.run_in_thread(lambda: requests.get('htt...', timeout=10), ...)
     except requests.Timeout:
         print("TIMEOUT!")
     else:
@@ -148,7 +156,8 @@ async def async_fn(widget):
 ```
 
 
-## Note
+## Notes
 
-- You may want to read the [asyncgui's documentation](https://gottadiveintopython.github.io/asyncgui/) as it is the foundation of this library.
-- I'm not even a tkinter user so there may be plenty of weird code in the repository.
+- You may want to read the [asyncgui's documentation](https://asyncgui.github.io/asyncgui/) as it is the foundation of this library.
+- You may want to read the [asyncgui_ext.clock's documentation](https://asyncgui.github.io/asyncgui-ext-clock/) as well.
+- I, the author of this library, am not even a tkinter user so there may be plenty of weird code in the repository.
