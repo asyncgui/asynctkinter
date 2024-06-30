@@ -54,8 +54,8 @@ at.start(what_you_want_to_do(...))
 Pin the minor version.
 
 ```text
-poetry add asynctkinter@~0.3
-pip install "asynctkinter>=0.3,<0.4"
+poetry add asynctkinter@~0.4
+pip install "asynctkinter>=0.4,<0.5"
 ```
 
 ## Usage
