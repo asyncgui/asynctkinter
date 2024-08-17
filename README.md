@@ -46,7 +46,7 @@ async def what_you_want_to_do(clock, label):
     await at.event(label, '<Button>')
     print('C')
 
-at.start(what_you_want_to_do(...))
+nursery.start(what_you_want_to_do(...))
 ```
 
 ## Installation
