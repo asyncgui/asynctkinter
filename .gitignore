@@ -5,5 +5,4 @@ bin/
 /.venv/
 /asynctkinter.egg-info/
 /.pytest_cache/
-/poetry.lock
 /dist/
