@@ -27,9 +27,12 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 async def draw_rect(canvas: tk.Canvas, e_press: tk.Event):
     ox, oy = e_press.x, e_press.y
     rect = canvas.create_rectangle(ox, oy, ox, oy, outline='orange', width=3)
-    async with at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)):
+    async with (
+        at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
+        at.event_freq(canvas, '<Motion>') as mouse_motion,
+    ):
         while True:
-            e = await at.event(canvas, '<Motion>')
+            e = await mouse_motion()
             canvas.coords(rect, ox, oy, e.x, e.y)
 
 
@@ -37,9 +40,12 @@ async def draw_oval(canvas: tk.Canvas, e_press: tk.Event):
     ox, oy = e_press.x, e_press.y
     oval = canvas.create_oval(ox, oy, ox, oy, outline='blue', width=3)
     bbox = canvas.create_rectangle(ox, oy, ox, oy, outline='black', dash=(3, 3))
-    async with at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)):
+    async with (
+        at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
+        at.event_freq(canvas, '<Motion>') as mouse_motion,
+    ):
         while True:
-            e = await at.event(canvas, '<Motion>')
+            e = await mouse_motion()
             canvas.coords(oval, ox, oy, e.x, e.y)
             canvas.coords(bbox, ox, oy, e.x, e.y)
     canvas.delete(bbox)
