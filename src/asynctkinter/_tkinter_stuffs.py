@@ -1,5 +1,5 @@
 __all__ = (
-    'event', 'run', 'install',
+    'event', 'event_freq', 'run', 'install',
 )
 import types
 from functools import lru_cache, partial
@@ -26,6 +26,65 @@ def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
         return (yield _sleep_forever)[0][0]
     finally:
         widget.unbind(sequence, bind_id)
+
+
+class event_freq:
+    '''
+    When handling a frequently occurring event, such as ``<Motion>``, the following code might cause performance
+    issues:
+
+    .. code-block::
+
+        e = await event(widget, '<ButtonPress>')
+        while True:
+            e = await event(widget, '<Motion>')
+            ...
+
+    If that happens, try the following code instead. It might resolve the issue:
+
+    .. code-block::
+
+        e = await event(widget, '<ButtonPress>')
+        async with event_freq(widget, '<Motion>') as mouse_motion:
+            while True:
+                e = await mouse_motion()
+                ...
+
+    The trade-off is that within the context manager, you can't perform any async operations except the
+    ``await mouse_motion()``.
+
+    .. code-block::
+
+        async with event_freq(...) as xxx:
+            e = await xxx()  # OK
+            await something_else()  # Don't
+
+    .. versionadded:: 0.4.1
+    '''
+    __slots__ = ('_widget', '_seq', '_filter', '_bind_id', )
+
+    def __init__(self, widget, sequence, *, filter=None):
+        self._widget = widget
+        self._seq = sequence
+        self._filter = filter
+
+    @types.coroutine
+    def __aenter__(self):
+        task = (yield _current_task)[0][0]
+        self._bind_id = self._widget.bind(
+            self._seq,
+            partial(_event_callback, task._step, self._filter),
+            "+",
+        )
+        return self._wait_one
+
+    async def __aexit__(self, *args):
+        self._widget.unbind(self._seq, self._bind_id)
+
+    @staticmethod
+    @types.coroutine
+    def _wait_one():
+        return (yield _sleep_forever)[0][0]
 
 
 @lru_cache(maxsize=1)
