@@ -23,7 +23,7 @@ async def run_progress_spinner(
         while True:
             next_start = get_next_start()
             next_extent = get_next_extent()
-            async for s, e in clock.interpolate_sequence((start, extent), (next_start, next_extent), duration=d):
+            async for s, e in clock.interpolate_seq((start, extent), (next_start, next_extent), duration=d):
                 draw_target.itemconfig(arc, start=s, extent=e)
             start = next_start
             extent = next_extent
