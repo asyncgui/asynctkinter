@@ -1,22 +1,29 @@
 __all__ = (
     'event', 'run', 'install',
 )
-from functools import lru_cache
+import types
+from functools import lru_cache, partial
 import typing as T
 
 import tkinter
-from asyncgui import AsyncEvent
+from asyncgui import _current_task, _sleep_forever
 
 
-async def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
-    ae = AsyncEvent()
+def _event_callback(task_step, filter, e: tkinter.Event):
+    if filter is None or filter(e):
+        task_step(e)
+
+
+@types.coroutine
+def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
+    task = (yield _current_task)[0][0]
     bind_id = widget.bind(
         sequence,
-        lambda e, ae=ae, filter=filter: ae.fire(e) if (filter is None or filter(e)) else None,
+        partial(_event_callback, task._step, filter),
         '+',
     )
     try:
-        return (await ae.wait())[0][0]
+        return (yield _sleep_forever)[0][0]
     finally:
         widget.unbind(sequence, bind_id)
 
