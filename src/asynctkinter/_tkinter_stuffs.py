@@ -59,7 +59,7 @@ class event_freq:
             e = await xxx()  # OK
             await something_else()  # Don't
 
-    .. versionadded:: 0.4.1
+    .. versionadded:: 0.4.2
     '''
     __slots__ = ('_widget', '_seq', '_filter', '_bind_id', )
 
