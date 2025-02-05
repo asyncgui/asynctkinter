@@ -2,13 +2,13 @@
 
 [[package]]
 name = "asyncgui"
-version = "0.7.1"
+version = "0.7.2"
 description = "A minimalistic async library that focuses on fast responsiveness"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "asyncgui-0.7.1-py3-none-any.whl", hash = "sha256:4ffa451b60455153e11a214db6bad9d4ae719fa810499f491b0fd25f65252eee"},
-    {file = "asyncgui-0.7.1.tar.gz", hash = "sha256:d339f0c9ebc824c8c92c1878d833624b19b4cca3c1ea7039056225374f823a5b"},
+    {file = "asyncgui-0.7.2-py3-none-any.whl", hash = "sha256:d3de7d96c94c7721809710ecdec6ac216ff8cf8b64c9ca8128a48c3564b50530"},
+    {file = "asyncgui-0.7.2.tar.gz", hash = "sha256:b9561434f2b73540706517dfe74bfde9d7f5ac537aad36f7fb8ebbbf92506800"},
 ]
 
 [package.dependencies]
@@ -209,4 +209,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.0"
-content-hash = "05798368377012df01e63995e1d27cc23d9cf2c0d611aec1a396f8a8aae56178"
+content-hash = "1c5d08a3dc847ecb5b57fef31ed6a618b88da60ecf98c9cd2edfb2f5692740bc"
