@@ -25,7 +25,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-asyncgui = "~0.7"
+asyncgui = ">=0.7,<0.9"
 asyncgui-ext-clock = "~0.5"
 
 [tool.poetry.group.dev.dependencies]
