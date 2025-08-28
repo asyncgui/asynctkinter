@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "asynctkinter"
-version = "0.4.2"
+version = "0.4.2.dev0"
 description = "async library for tkinter"
 authors = ["Nattōsai Mitō <flow4re2c@gmail.com>"]
 license = "MIT"
