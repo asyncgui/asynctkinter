@@ -11,7 +11,8 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
     label.pack(expand=True)
     await atk.event(label, '<Button>')
     label['text'] = 'waiting for the server to respond...'
-    res = await clock.run_in_thread(
+    res = await atk.run_in_thread(
+        clock,
         lambda: requests.get("https://httpbin.org/delay/2"),
         daemon=True,
         polling_interval=0.2,

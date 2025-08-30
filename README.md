@@ -46,7 +46,7 @@ async def what_you_want_to_do(clock, label):
     await atk.event(label, '<Button>')
     print('C')
 
-nursery.start(what_you_want_to_do(...))
+atk.start(what_you_want_to_do(...))
 ```
 
 ## Installation
@@ -118,8 +118,8 @@ if __name__ == "__main__":
 
 ### threading
 
-Unlike `Trio` and `asyncio`, `asynctkinter` doesn't provide any I/O functionalities,
-thus threads may be the best way to perform them without blocking the main thread:
+Unlike `trio` and `asyncio`, `asynckivy` does not provide any I/O primitives.
+Therefore, if you don’t want to implement your own, using threads may be the best way to perform I/O without blocking the main thread.
 
 ```python
 from concurrent.futures import ThreadPoolExecuter
@@ -130,16 +130,16 @@ executer = ThreadPoolExecuter()
 async def async_fn(clock: atk.Clock):
     # create a new thread, run a function inside it, then
     # wait for the completion of that thread
-    r = await clock.run_in_thread(thread_blocking_operation, polling_interval=1.0)
+    r = await atk.run_in_thread(clock, thread_blocking_operation)
     print("return value:", r)
 
     # run a function inside a ThreadPoolExecuter, and wait for its completion.
     # (ProcessPoolExecuter is not supported)
-    r = await clock.run_in_executer(executer, thread_blocking_operation, polling_interval=0.1)
+    r = await atk.run_in_executer(clock, executer, thread_blocking_operation)
     print("return value:", r)
 ```
 
-Exceptions(not BaseExceptions) are propagated to the caller,
+Unhandled exceptions (excluding `BaseException` that is not `Exception`) are propagated to the caller
 so you can catch them like you do in synchronous code:
 
 ```python
@@ -148,7 +148,7 @@ import asynctkinter as atk
 
 async def async_fn(clock: atk.Clock):
     try:
-        r = await clock.run_in_thread(lambda: requests.get('htt...', timeout=10), ...)
+        r = await atk.run_in_thread(clock, lambda: requests.get('htt...', timeout=10), ...)
     except requests.Timeout:
         print("TIMEOUT!")
     else:

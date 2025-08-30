@@ -1,12 +1,17 @@
 __all__ = (
     'event', 'event_freq', 'run', 'install',
+    'run_in_thread', 'run_in_executor',
 )
 import types
 from functools import lru_cache, partial
 import typing as T
 
+from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 import tkinter
-from asyncgui import _current_task, _sleep_forever
+
+from asyncgui import _current_task, _sleep_forever, Cancelled
+from asyncgui_ext.clock import Clock
 
 
 def _event_callback(task_step, filter, e: tkinter.Event):
@@ -110,7 +115,7 @@ def install():
         tkinter.Misc.unbind = _new_unbind
 
 
-def run(async_fn, *, fps=20, root=None):
+def run(async_fn, *, fps=20, root: tkinter.Tk=None):
     from time import sleep, perf_counter as get_time
     from tkinter import TclError
     import asyncgui
@@ -120,6 +125,11 @@ def run(async_fn, *, fps=20, root=None):
     max_ = max
     root = tkinter.Tk() if root is None else root
     clock = Clock()
+
+    # `run_in_thread` and `run_in_executer` used to be methods of Clock class until `asyncgui-ext-clock``
+    # version 0.5 but they no longer are. In order not to break existing code, we need to recreate them.
+    clock.run_in_thread = partial(run_in_thread, clock)
+    clock.run_in_executer = partial(run_in_executor, clock)
 
     root_task = asyncgui.start(async_fn(clock=clock, root=root))
     root.protocol("WM_DELETE_WINDOW", lambda: (root_task.cancel(), root.destroy()))
@@ -145,3 +155,78 @@ def run(async_fn, *, fps=20, root=None):
         # print(f"{last_time = }, {cur_time = }, {delta_time = }, {sleep_time = }")
 
     root_task.cancel()
+
+
+async def run_in_thread(clock: Clock, func, *, daemon=None, polling_interval=1.0):
+    '''
+    Creates a new thread, runs a function within it, then waits for the completion of that function.
+
+    .. code-block::
+
+        return_value = await run_in_thread(clock, func)
+
+    .. warning::
+        When the caller Task is cancelled, the ``func`` will be left running, which violates "structured concurrency".
+    '''
+    return_value = None
+    exception = None
+    done = False
+
+    def wrapper():
+        nonlocal return_value, done, exception
+        try:
+            return_value = func()
+        except Exception as e:
+            exception = e
+        finally:
+            done = True
+
+    Thread(target=wrapper, daemon=daemon, name="asynctkinter.run_in_thread").start()
+    async with clock.sleep_freq(polling_interval) as sleep:
+        while not done:
+            await sleep()
+    if exception is not None:
+        raise exception
+    return return_value
+
+
+async def run_in_executor(clock: Clock, executer: ThreadPoolExecutor, func, *, polling_interval=1.0):
+    '''
+    Runs a function within a :class:`concurrent.futures.ThreadPoolExecutor`, and waits for the completion of the
+    function.
+
+    .. code-block::
+
+        executor = ThreadPoolExecutor()
+        ...
+        return_value = await run_in_executor(clock, executor, func)
+
+
+    .. warning::
+        When the caller Task is cancelled, the ``func`` will be left running if it has already started,
+        which violates "structured concurrency".
+    '''
+    return_value = None
+    exception = None
+    done = False
+
+    def wrapper():
+        nonlocal return_value, done, exception
+        try:
+            return_value = func()
+        except Exception as e:
+            exception = e
+        finally:
+            done = True
+
+    future = executer.submit(wrapper)
+    try:
+        async with clock.sleep_freq(polling_interval) as sleep:
+            while not done:
+                await sleep()
+    except Cancelled:
+        future.cancel()
+        raise
+    if exception is not None:
+        raise exception
+    return return_value
