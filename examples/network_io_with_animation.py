@@ -35,13 +35,15 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
         button['text'] = 'cancel'
         async with atk.move_on_when(atk.event(button, "<Button>")) as cancel_tracker:
             label['text'] = 'first request...'
-            await clock.run_in_thread(
+            await atk.run_in_thread(
+                clock,
                 lambda: session.get("https://httpbin.org/delay/2"),
                 daemon=True,
                 polling_interval=0.4,
             )
             label['text'] = 'second request...'
-            await clock.run_in_thread(
+            await atk.run_in_thread(
+                clock,
                 lambda: session.get("https://httpbin.org/delay/2"),
                 daemon=True,
                 polling_interval=0.4,
