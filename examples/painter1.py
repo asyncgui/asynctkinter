@@ -4,10 +4,10 @@
 '''
 
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     root.title("Painter")
     root.geometry('800x800')
     canvas = tk.Canvas(root, bg='white')
@@ -18,7 +18,7 @@ async def main(*, clock: at.Clock, root: tk.Tk):
         3: draw_oval,
     }
     while True:
-        e_press = await at.event(canvas, '<Button>')
+        e_press = await atk.event(canvas, '<Button>')
         command = button2command.get(e_press.num)
         if command is not None:
             await command(canvas, e_press)
@@ -28,8 +28,8 @@ async def draw_rect(canvas: tk.Canvas, e_press: tk.Event):
     ox, oy = e_press.x, e_press.y
     rect = canvas.create_rectangle(ox, oy, ox, oy, outline='orange', width=3)
     async with (
-        at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
-        at.event_freq(canvas, '<Motion>') as mouse_motion,
+        atk.move_on_when(atk.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
+        atk.event_freq(canvas, '<Motion>') as mouse_motion,
     ):
         while True:
             e = await mouse_motion()
@@ -41,8 +41,8 @@ async def draw_oval(canvas: tk.Canvas, e_press: tk.Event):
     oval = canvas.create_oval(ox, oy, ox, oy, outline='blue', width=3)
     bbox = canvas.create_rectangle(ox, oy, ox, oy, outline='black', dash=(3, 3))
     async with (
-        at.move_on_when(at.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
-        at.event_freq(canvas, '<Motion>') as mouse_motion,
+        atk.move_on_when(atk.event(canvas, '<ButtonRelease>', filter=lambda e: e.num == e_press.num)),
+        atk.event_freq(canvas, '<Motion>') as mouse_motion,
     ):
         while True:
             e = await mouse_motion()
@@ -52,4 +52,4 @@ async def draw_oval(canvas: tk.Canvas, e_press: tk.Event):
 
 
 if __name__ == '__main__':
-    at.run(main)
+    atk.run(main)

@@ -1,11 +1,11 @@
 import itertools
 
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 
 async def run_progress_spinner(
-        x1, y1, x2, y2, *, clock: at.Clock, draw_target: tk.Canvas, line_color='black', line_width=10,
+        x1, y1, x2, y2, *, clock: atk.Clock, draw_target: tk.Canvas, line_color='black', line_width=10,
         min_arc_angle=15, speed=1.0):
     MA = min_arc_angle
     BS = 20  # base speed
@@ -31,7 +31,7 @@ async def run_progress_spinner(
         draw_target.delete(arc)
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     root.title("Progress Spinner")
     root.geometry('800x800')
     canvas = tk.Canvas(root, bg='white')
@@ -44,4 +44,4 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 
 
 if __name__ == '__main__':
-    at.run(main)
+    atk.run(main)
