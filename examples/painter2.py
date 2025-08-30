@@ -3,12 +3,12 @@
 '''
 
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 from painter1 import draw_oval, draw_rect
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     root.title("Painter")
     root.geometry('800x800')
     canvas = tk.Canvas(root, bg='white')
@@ -18,13 +18,13 @@ async def main(*, clock: at.Clock, root: tk.Tk):
         1: draw_rect,
         3: draw_oval,
     }
-    async with at.open_nursery() as nursery:
+    async with atk.open_nursery() as nursery:
         while True:
-            e_press = await at.event(canvas, '<Button>')
+            e_press = await atk.event(canvas, '<Button>')
             command = button2command.get(e_press.num)
             if command is not None:
                 nursery.start(command(canvas, e_press))
 
 
 if __name__ == '__main__':
-    at.run(main)
+    atk.run(main)

@@ -37,13 +37,13 @@ It's not easy to understand.
 If you use `asynctkinter`, the code above will become:
 
 ```python
-import asynctkinter as at
+import asynctkinter as atk
 
 async def what_you_want_to_do(clock, label):
     print('A')
     await clock.sleep(1)
     print('B')
-    await at.event(label, '<Button>')
+    await atk.event(label, '<Button>')
     print('C')
 
 nursery.start(what_you_want_to_do(...))
@@ -62,10 +62,10 @@ pip install "asynctkinter>=0.4,<0.5"
 
 ```python
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     label = tk.Label(root, text='Hello', font=('', 80))
     label.pack()
 
@@ -73,14 +73,14 @@ async def main(*, clock: at.Clock, root: tk.Tk):
     await clock.sleep(2)
 
     # waits for a label to be pressed
-    event = await at.event(label, '<Button>')
+    event = await atk.event(label, '<Button>')
     print(f"pos: {event.x}, {event.y}")
 
     # waits for either 5 seconds to elapse or a label to be pressed.
     # i.e. waits at most 5 seconds for a label to be pressed
-    tasks = await at.wait_any(
+    tasks = await atk.wait_any(
         clock.sleep(5),
-        at.event(label, '<Button>'),
+        atk.event(label, '<Button>'),
     )
     if tasks[0].finished:
         print("Timeout")
@@ -90,21 +90,21 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 
     # same as the above
     async with clock.move_on_after(5) as timeout_tracker:
-        event = await at.event(label, '<Button>')
+        event = await atk.event(label, '<Button>')
         print(f"The label got pressed. (pos: {event.x}, {event.y})")
     if timeout_tracker.finished:
         print("Timeout")
 
     # waits for both 5 seconds to elapse and a label to be pressed.
-    tasks = await at.wait_all(
+    tasks = await atk.wait_all(
         clock.sleep(5),
-        at.event(label, '<Button>'),
+        atk.event(label, '<Button>'),
     )
 
     # nests as you want.
     tasks = await ak.wait_all(
-        at.event(label, '<Button>'),
-        at.wait_any(
+        atk.event(label, '<Button>'),
+        atk.wait_any(
             clock.sleep(5),
             ...,
         ),
@@ -113,7 +113,7 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 
 
 if __name__ == "__main__":
-    at.run(main)
+    atk.run(main)
 ```
 
 ### threading
@@ -123,11 +123,11 @@ thus threads may be the best way to perform them without blocking the main threa
 
 ```python
 from concurrent.futures import ThreadPoolExecuter
-import asynctkinter as at
+import asynctkinter as atk
 
 executer = ThreadPoolExecuter()
 
-async def async_fn(clock: at.Clock):
+async def async_fn(clock: atk.Clock):
     # create a new thread, run a function inside it, then
     # wait for the completion of that thread
     r = await clock.run_in_thread(thread_blocking_operation, polling_interval=1.0)
@@ -144,9 +144,9 @@ so you can catch them like you do in synchronous code:
 
 ```python
 import requests
-import asynctkinter as at
+import asynctkinter as atk
 
-async def async_fn(clock: at.Clock):
+async def async_fn(clock: atk.Clock):
     try:
         r = await clock.run_in_thread(lambda: requests.get('htt...', timeout=10), ...)
     except requests.Timeout:

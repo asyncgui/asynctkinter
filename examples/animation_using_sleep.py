@@ -1,8 +1,8 @@
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     root.title("Looping Animation")
     root.geometry('800x200')
     label = tk.Label(root, text='Hello', font=('', 80))
@@ -22,4 +22,4 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 
 
 if __name__ == "__main__":
-    at.run(main)
+    atk.run(main)

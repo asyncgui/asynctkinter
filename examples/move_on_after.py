@@ -1,8 +1,8 @@
 import tkinter as tk
-import asynctkinter as at
+import asynctkinter as atk
 
 
-async def main(*, clock: at.Clock, root: tk.Tk):
+async def main(*, clock: atk.Clock, root: tk.Tk):
     root.title("Appying a time limit to a code block")
     root.geometry('400x400')
     label = tk.Label(root, font=('', 80))
@@ -20,4 +20,4 @@ async def main(*, clock: at.Clock, root: tk.Tk):
 
 
 if __name__ == "__main__":
-    at.run(main)
+    atk.run(main)

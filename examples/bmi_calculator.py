@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import asynctkinter as at
+import asynctkinter as atk
 
 
 class App:
@@ -15,10 +15,10 @@ class App:
         while True:
             await self.run_bmi_calculator(clock, root)
 
-    async def run_bmi_calculator(self, clock: at.Clock, root: tk.Tk):
+    async def run_bmi_calculator(self, clock: atk.Clock, root: tk.Tk):
         scene = self.title_scene
         scene.pack(in_=root, expand=True, fill='both')
-        await at.event(scene.children['start_button'], '<Button>')
+        await atk.event(scene.children['start_button'], '<Button>')
         scene.pack_forget()
 
         scene = self.input_scene
@@ -39,10 +39,10 @@ class App:
         scene.pack(in_=root, expand=True, fill='both')
         scene.children['top_label']['text'] = f'Your BMI is {bmi:.2f}\nYou are'
         scene.children['bottom_label']['text'] = result
-        await at.wait_any(clock.sleep(3), at.event(root, '<Button>'))
+        await atk.wait_any(clock.sleep(3), atk.event(root, '<Button>'))
         scene.children['top_label']['text'] = ''
         scene.children['bottom_label']['text'] = 'bye'
-        await at.wait_any(clock.sleep(3), at.event(root, '<Button>'))
+        await atk.wait_any(clock.sleep(3), atk.event(root, '<Button>'))
         scene.pack_forget()
 
     def init_style(self):
@@ -76,7 +76,7 @@ class App:
             entry.delete(0, tk.END)
             entry.focus()
             while True:
-                await at.event(entry, '<Return>')
+                await atk.event(entry, '<Return>')
                 text = entry.get()
                 try:
                     value = float(text)
@@ -102,4 +102,4 @@ class App:
 
 
 if __name__ == '__main__':
-    at.run(App().main)
+    atk.run(App().main)
