@@ -19,8 +19,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "asyncgui>=0.9,<0.10",
-    "asyncgui-ext-clock>=0.6.1,<0.7",
+    "asyncgui>=0.9,<0.12",
 ]
 
 [project.urls]
