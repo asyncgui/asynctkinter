@@ -4,14 +4,26 @@ requires-python = ">=3.10.0, <4"
 
 [[package]]
 name = "asyncgui"
-version = "0.10.1"
+version = "0.9.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/80/05bcddc4f752a5eda3f6ce39b9a0012da5533ae1f5b3293ba0b5e4e3942f/asyncgui-0.10.1.tar.gz", hash = "sha256:3b29d19353ea16b9fdb9fd8f3daaf16ad37784f5101232c673a6a4b5574a1037", size = 8590, upload-time = "2026-04-02T01:03:17.1Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d0/c5/faf9b660a0abd82f5009a14ae3f1ac7a025d03c0fd16639ed94c511262b6/asyncgui-0.9.3.tar.gz", hash = "sha256:46b283946a1814f600b502ee48082be9681097a72d8d011305e453d683a9064b", size = 9189, upload-time = "2025-08-02T23:15:28.161Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/fc/beebacc40ddb70d8342d43a8372c6574e77f692b3270a318989cdabfd8d2/asyncgui-0.10.1-py3-none-any.whl", hash = "sha256:247d8d92d3364f5dd98140d36c12bc30ffc58ab25af783623d0faec10312ebfd", size = 9057, upload-time = "2026-04-02T01:03:16.014Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/71/e208826b9c0f21d2c314e443dfde72f6ee30f6a31a57c86fc80fcdf1a7c1/asyncgui-0.9.3-py3-none-any.whl", hash = "sha256:ed73fc00c68d7e0d804eb239f2ad9c319dce57a5d31342c19aadc18f44270103", size = 9201, upload-time = "2025-08-02T23:15:26.727Z" },
+]
+
+[[package]]
+name = "asyncgui-ext-clock"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asyncgui" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/57/a0/ac6d835888b97b1ccbe77e8ef210cbc0afeb29fffda337c7ce864c86ebc0/asyncgui_ext_clock-0.6.1.tar.gz", hash = "sha256:fd754f594bef07fd588c01cbda045f7a137134a964ab3324fa2bf73d204c3f2f", size = 6071, upload-time = "2025-08-30T22:15:53.482Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/9e/7e7eb2b5b779a9c9686e9b0b7648cf595c211c31ed5113038577babfa3f3/asyncgui_ext_clock-0.6.1-py3-none-any.whl", hash = "sha256:50f63300e89ddb8a1c95b586c5a2ba577b27211ecc4af7cc563c60fb5dd9d044", size = 6612, upload-time = "2025-08-30T22:15:52.294Z" },
 ]
 
 [[package]]
@@ -20,6 +32,7 @@ version = "0.5.0.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "asyncgui" },
+    { name = "asyncgui-ext-clock" },
 ]
 
 [package.dev-dependencies]
@@ -28,7 +41,10 @@ example = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "asyncgui", specifier = ">=0.9,<0.12" }]
+requires-dist = [
+    { name = "asyncgui", specifier = ">=0.9,<0.12" },
+    { name = "asyncgui-ext-clock", specifier = ">=0.6.1,<0.7" },
+]
 
 [package.metadata.requires-dev]
 example = [{ name = "requests", specifier = ">=2.32.5" }]
