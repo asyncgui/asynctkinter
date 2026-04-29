@@ -20,6 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "asyncgui>=0.9,<0.12",
+    "asyncgui-ext-clock>=0.6.1,<0.7",
 ]
 
 [project.urls]
