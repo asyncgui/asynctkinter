@@ -9,7 +9,7 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
     root.geometry('1000x400')
     label = tk.Label(root, text='Press to start a HTTP request', font=('', 40))
     label.pack(expand=True)
-    await atk.event(label, '<Button>')
+    await atk.event(label, "<ButtonPress>")
     label['text'] = 'waiting for the server to respond...'
     res = await atk.run_in_thread(
         clock,

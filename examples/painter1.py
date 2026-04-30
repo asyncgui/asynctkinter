@@ -18,7 +18,7 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
         3: draw_oval,
     }
     while True:
-        e_press = await atk.event(canvas, '<Button>')
+        e_press = await atk.event(canvas, "<ButtonPress>")
         command = button2command.get(e_press.num)
         if command is not None:
             await command(canvas, e_press)

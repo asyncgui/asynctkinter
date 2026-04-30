@@ -18,7 +18,7 @@ class App:
     async def run_bmi_calculator(self, clock: atk.Clock, root: tk.Tk):
         scene = self.title_scene
         scene.pack(in_=root, expand=True, fill='both')
-        await atk.event(scene.children['start_button'], '<Button>')
+        await atk.event(scene.children["start_button"], "<ButtonPress>")
         scene.pack_forget()
 
         scene = self.input_scene
@@ -37,12 +37,12 @@ class App:
 
         scene = self.result_scene
         scene.pack(in_=root, expand=True, fill='both')
-        scene.children['top_label']['text'] = f'Your BMI is {bmi:.2f}\nYou are'
-        scene.children['bottom_label']['text'] = result
-        await atk.wait_any(clock.sleep(3), atk.event(root, '<Button>'))
-        scene.children['top_label']['text'] = ''
-        scene.children['bottom_label']['text'] = 'bye'
-        await atk.wait_any(clock.sleep(3), atk.event(root, '<Button>'))
+        scene.children["top_label"]["text"] = f"Your BMI is {bmi:.2f}\nYou are"
+        scene.children["bottom_label"]["text"] = result
+        await atk.wait_any(clock.sleep(3), atk.event(root, "<ButtonPress>"))
+        scene.children["top_label"]["text"] = ""
+        scene.children["bottom_label"]["text"] = "bye"
+        await atk.wait_any(clock.sleep(3), atk.event(root, "<ButtonPress>"))
         scene.pack_forget()
 
     def init_style(self):
