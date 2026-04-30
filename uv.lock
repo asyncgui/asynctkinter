@@ -4,26 +4,26 @@ requires-python = ">=3.10.0, <4"
 
 [[package]]
 name = "asyncgui"
-version = "0.9.3"
+version = "0.11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d0/c5/faf9b660a0abd82f5009a14ae3f1ac7a025d03c0fd16639ed94c511262b6/asyncgui-0.9.3.tar.gz", hash = "sha256:46b283946a1814f600b502ee48082be9681097a72d8d011305e453d683a9064b", size = 9189, upload-time = "2025-08-02T23:15:28.161Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/43/170821d7a1bcc8a1b9908f914a92478348abd35e9f1b845f01689d44e1f3/asyncgui-0.11.1.tar.gz", hash = "sha256:f4aebe9f3b9aef7107c0ed9734a56aec9497814f964209680d787396112479bd", size = 8418, upload-time = "2026-04-30T09:08:57.711Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f8/71/e208826b9c0f21d2c314e443dfde72f6ee30f6a31a57c86fc80fcdf1a7c1/asyncgui-0.9.3-py3-none-any.whl", hash = "sha256:ed73fc00c68d7e0d804eb239f2ad9c319dce57a5d31342c19aadc18f44270103", size = 9201, upload-time = "2025-08-02T23:15:26.727Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/5a/ec833ad479982435c0eadd79b36b31893473de263e07d657c1cc0304f7bc/asyncgui-0.11.1-py3-none-any.whl", hash = "sha256:be25aa813e6a84be4d01c11a895ce7ad9962176ef8fb128fd51622463fb1e6c3", size = 8877, upload-time = "2026-04-30T09:08:56.357Z" },
 ]
 
 [[package]]
 name = "asyncgui-ext-clock"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asyncgui" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/57/a0/ac6d835888b97b1ccbe77e8ef210cbc0afeb29fffda337c7ce864c86ebc0/asyncgui_ext_clock-0.6.1.tar.gz", hash = "sha256:fd754f594bef07fd588c01cbda045f7a137134a964ab3324fa2bf73d204c3f2f", size = 6071, upload-time = "2025-08-30T22:15:53.482Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/f2/a62d987cce8e685c8c09895dc27b157e86f9d4a6b48964739dc39a3fc54f/asyncgui_ext_clock-0.6.2.tar.gz", hash = "sha256:b7b8a16b7a1d2c45afdc633e7bb01cf57a58193af91da5726b2a1d666a3b3500", size = 5451, upload-time = "2026-04-30T11:49:16.892Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/9e/7e7eb2b5b779a9c9686e9b0b7648cf595c211c31ed5113038577babfa3f3/asyncgui_ext_clock-0.6.1-py3-none-any.whl", hash = "sha256:50f63300e89ddb8a1c95b586c5a2ba577b27211ecc4af7cc563c60fb5dd9d044", size = 6612, upload-time = "2025-08-30T22:15:52.294Z" },
+    { url = "https://files.pythonhosted.org/packages/43/67/53b8cbd3687e711c1cf27ab258ca7659c3c47d7e9a4278945694fcd41816/asyncgui_ext_clock-0.6.2-py3-none-any.whl", hash = "sha256:8ad5af0bfe591a513a778a9a47f0ece82f2470ed4e1066c04fed37754a970a5d", size = 6016, upload-time = "2026-04-30T11:49:15.829Z" },
 ]
 
 [[package]]
