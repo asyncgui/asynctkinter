@@ -1,3 +1,7 @@
+'''
+asyncgui 0.11.1 or later is required to run this example.
+'''
+
 import tkinter as tk
 from tkinter import ttk
 import requests
@@ -22,19 +26,18 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
     canvas = tk.Canvas(root, bg=bg, height=200, width=200)
     canvas.pack(expand=True)
 
-    await atk.event(button, "<Button>")
+    await atk.event(button, "<ButtonPress>")
 
-    lw = 20  # line width
-    async with atk.run_as_daemon(
-        run_progress_spinner(
+    async with atk.open_nursery() as nursery:
+        cancel_tracker = nursery.start(atk.event(button, "<ButtonPress>"), daemon=True, close_on_finish=True)
+        lw = 20  # line width
+        nursery.start(run_progress_spinner(
             lw, lw, canvas.winfo_width() - lw, canvas.winfo_height() - lw,
             clock=clock, draw_target=canvas, line_width=lw,
-        ),
-    ):
-        session = requests.Session()
-        button['text'] = 'cancel'
-        async with atk.move_on_when(atk.event(button, "<Button>")) as cancel_tracker:
-            label['text'] = 'first request...'
+        ), daemon=True)
+        button["text"] = "cancel"
+        with requests.Session() as session:
+            label["text"] = "first request..."
             await atk.run_in_thread(
                 clock,
                 lambda: session.get("https://httpbin.org/delay/2"),
@@ -49,9 +52,9 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
                 polling_interval=0.4,
             )
 
-    label['text'] = 'cancelled' if cancel_tracker.finished else 'all requests done'
-    button['text'] = 'close'
-    await atk.event(button, "<Button>")
+    label["text"] = "cancelled" if cancel_tracker.finished else "all requests done"
+    button["text"] = "close"
+    await atk.event(button, "<ButtonPress>")
     await clock.sleep(0)
     root.destroy()
 
