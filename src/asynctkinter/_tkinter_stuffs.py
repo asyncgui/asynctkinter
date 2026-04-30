@@ -139,8 +139,9 @@ def run(async_fn, *, fps=20, root: tkinter.Tk=None):
     update_interval = 1.0 / fps
     min_sleep_time = 1.0 / 60.0
 
+    STARTED = asyncgui.TaskState.STARTED
     last_time = get_time()
-    while True:
+    while root_task._state is STARTED:
         try:
             root_update()
         except TclError:
