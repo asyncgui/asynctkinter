@@ -22,13 +22,13 @@ def what_you_want_to_do(label):
 
     def one_sec_later(__):
         nonlocal bind_id
-        print('B')
-        bind_id = label.bind('<Button>', on_press, '+')
+        print("B")
+        bind_id = label.bind("<ButtonPress>", on_press, "+")
     label.after(1000, one_sec_later)
 
     def on_press(event):
-        label.unbind('<Button>', bind_id)
-        print('C')
+        label.unbind("<ButtonPress>", bind_id)
+        print("C")
 
 what_you_want_to_do(...)
 ```
@@ -40,11 +40,11 @@ If you use `asynctkinter`, the code above will become:
 import asynctkinter as atk
 
 async def what_you_want_to_do(clock, label):
-    print('A')
+    print("A")
     await clock.sleep(1)
-    print('B')
-    await atk.event(label, '<Button>')
-    print('C')
+    print("B")
+    await atk.event(label, "<ButtonPress>")
+    print("C")
 
 atk.start(what_you_want_to_do(...))
 ```
@@ -73,14 +73,14 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
     await clock.sleep(2)
 
     # waits for a label to be pressed
-    event = await atk.event(label, '<Button>')
+    event = await atk.event(label, "<ButtonPress>")
     print(f"pos: {event.x}, {event.y}")
 
     # waits for either 5 seconds to elapse or a label to be pressed.
     # i.e. waits at most 5 seconds for a label to be pressed
     tasks = await atk.wait_any(
         clock.sleep(5),
-        atk.event(label, '<Button>'),
+        atk.event(label, "<ButtonPress>"),
     )
     if tasks[0].finished:
         print("Timeout")
@@ -90,7 +90,7 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
 
     # same as the above
     async with clock.move_on_after(5) as timeout_tracker:
-        event = await atk.event(label, '<Button>')
+        event = await atk.event(label, "<ButtonPress>")
         print(f"The label got pressed. (pos: {event.x}, {event.y})")
     if timeout_tracker.finished:
         print("Timeout")
@@ -98,12 +98,12 @@ async def main(*, clock: atk.Clock, root: tk.Tk):
     # waits for both 5 seconds to elapse and a label to be pressed.
     tasks = await atk.wait_all(
         clock.sleep(5),
-        atk.event(label, '<Button>'),
+        atk.event(label, "<ButtonPress>"),
     )
 
     # nests as you want.
     tasks = await ak.wait_all(
-        atk.event(label, '<Button>'),
+        atk.event(label, "<ButtonPress>"),
         atk.wait_any(
             clock.sleep(5),
             ...,

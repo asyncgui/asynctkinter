@@ -13,10 +13,10 @@ def main():
     root = tk.Tk()
     label = tk.Label(root, text='Suikoden 6 when?', font=('', 40))
     label.pack()
-    label.bind('<Button>', lambda e: print('1st'), '+')
-    bind_id = label.bind('<Button>', lambda e: print('2nd'), '+')
-    label.bind('<Button>', lambda e: print('3rd'), '+')
-    label.unbind('<Button>', bind_id)
+    label.bind("<ButtonPress>", lambda e: print("1st"), "+")
+    bind_id = label.bind("<ButtonPress>", lambda e: print("2nd"), "+")
+    label.bind("<ButtonPress>", lambda e: print("3rd"), "+")
+    label.unbind("<ButtonPress>", bind_id)
     root.mainloop()
 
 
