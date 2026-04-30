@@ -2,94 +2,100 @@ __all__ = (
     'event', 'event_freq', 'run', 'install',
     'run_in_thread', 'run_in_executor',
 )
-import types
 from functools import lru_cache, partial
-import typing as T
+from collections.abc import Awaitable
 
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 import tkinter
 
-from asyncgui import _current_task, _sleep_forever, Cancelled
+from asyncgui import Cancelled, ExclusiveEvent
 from asyncgui_ext.clock import Clock
 
 
-def _event_callback(task_step, filter, e: tkinter.Event):
+def _event_callback(callback, filter, e: tkinter.Event):
     if filter is None or filter(e):
-        task_step(e)
+        callback(e)
 
 
-@types.coroutine
-def event(widget, sequence, *, filter=None) -> T.Awaitable[tkinter.Event]:
-    task = (yield _current_task)[0][0]
-    bind_id = widget.bind(
-        sequence,
-        partial(_event_callback, task._step, filter),
-        '+',
-    )
+async def event(widget, event_name, *, filter=None) -> Awaitable[tkinter.Event]:
+    '''
+    .. code-block::
+
+        e = await event(widget, "<ButtonPress>")
+        print(f"{e.x = }, {e.y = }")
+    '''
+    ee = ExclusiveEvent()
+    bind_id = widget.bind(event_name, partial(_event_callback, ee.fire, filter), "+")
     try:
-        return (yield _sleep_forever)[0][0]
+        return await ee.wait_args_0()
     finally:
-        widget.unbind(sequence, bind_id)
+        widget.unbind(event_name, bind_id)
 
 
 class event_freq:
     '''
-    When handling a frequently occurring event, such as ``<Motion>``, the following code might cause performance
-    issues:
+    When handling a frequently occurring event, such as ``<Motion>``, the following kind of code
+    may cause performance issues:
 
     .. code-block::
 
-        e = await event(widget, '<ButtonPress>')
         while True:
-            e = await event(widget, '<Motion>')
+            e = await event(widget, "<Motion>")
             ...
 
-    If that happens, try the following code instead. It might resolve the issue:
+    If that happens, try the following code instead. It may resolve the issue:
 
     .. code-block::
 
-        e = await event(widget, '<ButtonPress>')
-        async with event_freq(widget, '<Motion>') as mouse_motion:
+        with event_freq(widget, "<Motion>") as mouse_motion:
             while True:
                 e = await mouse_motion()
                 ...
 
-    The trade-off is that within the context manager, you can't perform any async operations except the
-    ``await mouse_motion()``.
+    When listening for a ``<Motion>`` event, you will often also want to listen for a ``<ButtonRelease>`` event,
+    which leads to deeply nested code:
 
     .. code-block::
 
-        async with event_freq(...) as xxx:
-            e = await xxx()  # OK
-            await something_else()  # Don't
+        async with move_on_when(event(widget, "<ButtonRelease>", filter=...)):
+            with event_freq(widget, "<Motion>") as mouse_motion:
+                while True:
+                    e = await mouse_motion()
+                    ...
+
+    To mitigate this, ``event_freq`` can also be used as an async context manager, making the above code less nested:
+
+    .. code-block::
+
+        async with (
+            move_on_when(event(widget, "<ButtonRelease>", filter=...)),
+            event_freq(widget, "<Motion>") as mouse_motion,
+        ):
+            while True:
+                e = await mouse_motion()
+                ...
 
     .. versionadded:: 0.4.2
     '''
-    __slots__ = ('_widget', '_seq', '_filter', '_bind_id', )
+    def __init__(self, widget, event_name, *, filter=None):
+        self.widget = widget
+        self.event_name = event_name
+        self.filter = filter
 
-    def __init__(self, widget, sequence, *, filter=None):
-        self._widget = widget
-        self._seq = sequence
-        self._filter = filter
+    def __enter__(self):
+        ee = ExclusiveEvent()
+        self.bind_id = self.widget.bind(self.event_name, partial(_event_callback, ee.fire, self.filter), "+")
+        return ee.wait_args_0
 
-    @types.coroutine
-    def __aenter__(self):
-        task = (yield _current_task)[0][0]
-        self._bind_id = self._widget.bind(
-            self._seq,
-            partial(_event_callback, task._step, self._filter),
-            "+",
-        )
-        return self._wait_one
+    def __exit__(self, *args):
+        self.widget.unbind(self.event_name, self.bind_id)
+
+    async def __aenter__(self):
+        return self.__enter__()
 
     async def __aexit__(self, *args):
-        self._widget.unbind(self._seq, self._bind_id)
-
-    @staticmethod
-    @types.coroutine
-    def _wait_one():
-        return (yield _sleep_forever)[0][0]
+        return self.__exit__(*args)
 
 
 @lru_cache(maxsize=1)
