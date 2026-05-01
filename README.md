@@ -54,8 +54,7 @@ atk.start(what_you_want_to_do(...))
 Pin the minor version.
 
 ```text
-poetry add asynctkinter@~0.4
-pip install "asynctkinter>=0.4,<0.5"
+pip install "asynctkinter>=0.5,<0.6"
 ```
 
 ## Usage
