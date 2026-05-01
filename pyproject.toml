@@ -1,6 +1,6 @@
 [project]
 name = "asynctkinter"
-version = "0.5.0.dev0"
+version = "0.5.0"
 description = "async library for tkinter"
 authors = [{ name = "Nattōsai Mitō", email = "flow4re2c@gmail.com" }]
 requires-python = ">=3.10.0,<4"
