@@ -1,3 +1,8 @@
+# IMPORTANT NOTICE
+
+This project is no longer maintained.
+Please consider migrating to [asynctkinter2](https://github.com/asyncgui/asynctkinter2).
+
 # AsyncTkinter
 
 [Youtube](https://youtu.be/8XP1KgRd3jI)
